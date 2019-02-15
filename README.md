@@ -1,6 +1,6 @@
 # rice
 
-Required: Python 3, SWI Prolog
+Required: Python 3, SWI Prolog 8
 
 To start the learning:
 
