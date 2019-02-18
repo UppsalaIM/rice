@@ -1,7 +1,7 @@
 # rice
 
 Rule Induction of CNP Explanations (RICE) is a methodology for extracting human-readable explanation models from machine learning models.
-test
+
 ## Requirements
 
 - Python 3
