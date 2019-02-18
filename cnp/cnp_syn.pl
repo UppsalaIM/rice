@@ -1,7 +1,7 @@
 :- use_module(library(lists)).
 :- use_module(library(aggregate)).
 :- use_module(library(clpfd)).
-:- multifile libPredicate/3.
+
 :- multifile jobValence/1.
 :- multifile jobConstant/1.
 :- multifile jobObservable/2.
@@ -106,8 +106,6 @@ syn(ande(P, Q), _, MaxHeight, ValenceAnd, Examples) :-
   valenceAnde(ValenceAnd, ValenceP, ValenceQ),
   % print([valenceAnde, ValenceAnd, ValenceP, ValenceQ, example, Examples]), nl,
   searchLogProgress("ande", MaxHeight, ValenceAnd),
-  % argNames(NamesP, ValenceP),
-  % argNames(NamesQ, ValenceQ),
   disjoinExamples(ValenceP, Examples, ExamplesP),
   syn(P, ande, SubMaxHeight, ValenceP, ExamplesP),
   disjoinExamples(ValenceQ, Examples, ExamplesQ),
@@ -124,34 +122,22 @@ syn(proj(Q,Projs), ParentOp, MaxHeight, ValenceProj, Examples) :-
   unprojExamplesToValence(Examples, Projs, ValenceProj, ValenceQ, ExamplesUnproj),
   syn(Q, proj, SubMaxHeight, ValenceQ, ExamplesUnproj).
 
-% syn(foldr2(P,Q), ParentOp, MaxHeight, ValenceFoldr2, Examples) :-
-%   MaxHeight>=2,
-%   SubMaxHeight is MaxHeight-1,
-%   ParentOp\=ore,
-%   valenceFoldr2(ValenceFoldr2, ValenceP, ValenceQ),
-%   searchLogProgress("foldr2", MaxHeight, ValenceFoldr2),
-%   syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, Examples).
-%
-% syn(foldr(P,Q), ParentOp, MaxHeight, ValenceFoldr, Examples) :-
-%   MaxHeight>=2,
-%   SubMaxHeight is MaxHeight-1,
-%   ParentOp \= ore, ParentOp \= foldr,
-%   %dif(ParentOp, ore), dif(ParentOp, foldr),
-%   valenceFoldr(ValenceFoldr, ValenceP, ValenceQ),
-%   searchLogProgress("foldr", MaxHeight, ValenceFoldr),
-%   syn_foldr(P, ValenceP, Q, ValenceQ, SubMaxHeight, Examples).
+syn(foldr2(P,Q), ParentOp, MaxHeight, ValenceFoldr2, Examples) :-
+  MaxHeight>=2,
+  SubMaxHeight is MaxHeight-1,
+  ParentOp\=ore,
+  valenceFoldr2(ValenceFoldr2, ValenceP, ValenceQ),
+  searchLogProgress("foldr2", MaxHeight, ValenceFoldr2),
+  syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, Examples).
 
-% syn_iif(P, ValenceP, Q, R, ValenceQR, SubMaxHeight, [Eqr|ExamplesP], [Eqr|ExamplesQR]) :-
-%   syn(P, iif, SubMaxHeight, ValenceP, [E]),
-
-% syn_iif_find_QRConstants(Valence, _, _, _,) :- Valence\=[o:out], throw('Valence for QR needs to be [o:out].').
-% syn_iif_find_QRConstants(_, [], _, _,).
-% syn_iif_find_QRConstants([o:out], [[o:V]|Extail], QConstant, RConstant) :-
-%   (V=QConstant, V=RConstant),
-%   syn_iif_find_QRConstants([o:out], Extail, QConstant, RConstant).
-
-
-%syn_iif_filterPExamples(ValenceP, ValenceQR, Examples, PPos, PNeg, Q, R),
+syn(foldr(P,Q), ParentOp, MaxHeight, ValenceFoldr, Examples) :-
+  MaxHeight>=2,
+  SubMaxHeight is MaxHeight-1,
+  ParentOp \= ore, ParentOp \= foldr,
+  %dif(ParentOp, ore), dif(ParentOp, foldr),
+  valenceFoldr(ValenceFoldr, ValenceP, ValenceQ),
+  searchLogProgress("foldr", MaxHeight, ValenceFoldr),
+  syn_foldr(P, ValenceP, Q, ValenceQ, SubMaxHeight, Examples).
 
 %syn_iif_filterPExamples(PValence, QRValence, Examples, PPositiveExamples, PNegativeExamples, QConst, RConst) :-
 syn_iif_filterPExamples(_, _, [], [], [], _, _).
@@ -162,24 +148,22 @@ syn_iif_filterPExamples(PValence, QRValence, [E|Examples], PPos, PNeg, QConstant
   ((Value=QConstant, PPos=[PExample|PPosTail], syn_iif_filterPExamples(PValence, QRValence, Examples, PPosTail, PNeg, QConstant, RConstant));
    (Value=RConstant, PNeg=[PExample|PNegTail], syn_iif_filterPExamples(PValence, QRValence, Examples, PPos, PNegTail, QConstant, RConstant))).
 
+syn_foldr2(_, _, Q, ValenceQ, SubMaxHeight, [[as:[],b:W]]) :-
+  syn(Q, foldr2, SubMaxHeight, ValenceQ, [[b:W]]).
+syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, [[as:[],b:W]|Examples]) :-
+  syn(Q, foldr2, SubMaxHeight, ValenceQ, [[b:W]]),
+  syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, Examples).
+syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, [[as:[X|T],b:W]|Examples]) :-
+  syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, [[as:T,b:Z]|Examples]),
+  syn(P, foldr2, SubMaxHeight, ValenceP, [[a:X,b:Z,ab:W]]).
 
-
-% syn_foldr2(_, _, Q, ValenceQ, SubMaxHeight, [[as:[],b:W]]) :-
-%   syn(Q, foldr2, SubMaxHeight, ValenceQ, [[b:W]]).
-% syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, [[as:[],b:W]|Examples]) :-
-%   syn(Q, foldr2, SubMaxHeight, ValenceQ, [[b:W]]),
-%   syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, Examples).
-% syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, [[as:[X|T],b:W]|Examples]) :-
-%   syn_foldr2(P, ValenceP, Q, ValenceQ, SubMaxHeight, [[as:T,b:Z]|Examples]),
-%   syn(P, foldr2, SubMaxHeight, ValenceP, [[a:X,b:Z,ab:W]]).
-%
-% syn_foldr(_, _, _, _, _, []).
-% syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, [[a0:A0, as:[], b:B]|ExRest]) :-
-%   syn(Q, foldr, SubMaxHeight, ValQ, [[a:A0, b:B]]),
-%   syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, ExRest).
-% syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, [[a0:A0, as:[A|As], b:AB]|ExRest]) :-
-%   syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, [[a0:A0, as:As, b:B]|ExRest]),
-%   syn(P, foldr, SubMaxHeight, ValP, [[a:A, b:B, ab:AB]]).
+syn_foldr(_, _, _, _, _, []).
+syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, [[a0:A0, as:[], b:B]|ExRest]) :-
+  syn(Q, foldr, SubMaxHeight, ValQ, [[a:A0, b:B]]),
+  syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, ExRest).
+syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, [[a0:A0, as:[A|As], b:AB]|ExRest]) :-
+  syn_foldr(P, ValP, Q, ValQ, SubMaxHeight, [[a0:A0, as:As, b:B]|ExRest]),
+  syn(P, foldr, SubMaxHeight, ValP, [[a:A, b:B, ab:AB]]).
 
 testExamplesPos(_, []).
 testExamplesPos(P, [E|Er]) :- once(cnp(P, E)), testExamplesPos(P, Er).
@@ -268,14 +252,6 @@ unifyFirstNInList(N, [H|T1], [H|T2]) :-
   Nm is N-1,
   unifyFirstNInList(Nm, T1, T2).
 
-% firstNInList(0, _, []).
-% firstNInList(N, [], _) :- N>0, throw('There is not enough items in the lh list:' + N).
-% firstNInList(N, [Lh|Lt], L2) :-
-%   N>0,
-%   Nm1 is N-1,
-%   L2=[Lh|L2t],
-%   firstNInList(Nm1, Lt, L2t).
-
 makeUnboundList(0, []).
 makeUnboundList(N, [_|T]) :-
   N>0,
@@ -287,10 +263,3 @@ repeatTermInList(N, E, [E|Tail]) :-
   N>0,
   Nm is N-1,
   repeatTermInList(Nm, E, Tail).
-%
-% repeatString(String, 1, RepeatedString) :- RepeatedString=String.
-% repeatString(String, N, RepeatedString) :-
-%   N>1,
-%   Nm is N-1,
-%   repeatString(String, Nm, RepeatedNm),
-%   string_concat(String, RepeatedNm, RepeatedString).
