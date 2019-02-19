@@ -1,4 +1,4 @@
-% valenceProj(SourceValence, ProjItems, ProjValence) 
+% valenceProj(SourceValence, ProjItems, ProjValence)
 valenceProj([A:in], [A->U], [U:in]).
 valenceProj([A:out], [A->U], [U:out]).
 valenceProj([A:in, B:in], [A->U, B->V], [U:in, V:in]).
@@ -13,7 +13,7 @@ valenceProj([A:out, B:in, C:in], [A->U, B->V, C->X], [U:out, V:in, X:in]).
 valenceProj([A:out, B:in, C:out], [A->U, B->V, C->X], [U:out, V:in, X:out]).
 valenceProj([A:out, B:out, C:in], [A->U, B->V, C->X], [U:out, V:out, X:in]).
 valenceProj([A:out, B:out, C:out], [A->U, B->V, C->X], [U:out, V:out, X:out]).
-% valenceAnde(AndeValence, PValence, QValence) 
+% valenceAnde(AndeValence, PValence, QValence)
 valenceAnde([A:in], [A:in], [A:in]).
 valenceAnde([A:in], [A:in], [A:out]).
 valenceAnde([A:in], [A:out], [A:in]).
