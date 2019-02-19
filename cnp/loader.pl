@@ -12,7 +12,6 @@ load() :-
 
 :- consult('cnp.pl').
 :- consult('cnp_syn.pl').
-:- consult('cnp_lib.pl').
 
 
 
